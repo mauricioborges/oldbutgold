@@ -1,0 +1,8 @@
+rm RESTclient
+cobc -x -W RESTclient.cbl \
+  get_errno.c \
+  errnomessage.cbl \
+  httpstatus.cbl \
+  connecttoserver.cbl
+chmod +x RESTclient
+./RESTclient

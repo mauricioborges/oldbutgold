@@ -5,25 +5,16 @@
 
        configuration section.
 
-       input-output section.
-       file-control.
-           select file1 assign to disk
-               organization is indexed
-               access mode is random
-               file status is fs-stat
-               record key is fs-key.
-
        data division.
        file section.
-       fd file1 value of file-id is "clientes.dat".
+
+       working-storage section.
        01 file1-rec.
            05 fs-key.
                10 fs-fone pic 9(09) blank when zeros.
            05 fs-nome     pic x(40).
            05 fs-endereco pic x(40).
            05 filler      pic x(20).
-
-       working-storage section.
 
        01 ws-modulo.
            05 filler pic x(11) value "clientes -".
@@ -35,10 +26,9 @@
            88 e-alterar   value is "3".
            88 e-excluir   value is "4".
            88 e-encerrar  value is "x" "x".
-       77 fs-stat pic 9(02).
+       77 app-stat pic 9(02).
            88 fs-ok         value zeros.
-           88 fs-cancela    value 99.
-           88 fs-nao-existe value 35.
+           88 app-cancela    value 99.
        77 ws-erro pic x.
            88 e-sim values are "s" "s".
 
@@ -102,7 +92,6 @@
            set environment 'escdelay' to '25'.
            accept ws-numl from lines
            accept ws-numc from columns
-           perform abrir-arquivos
            call 'start-files'.
            perform until e-encerrar
                move "menu" to ws-op
@@ -122,7 +111,7 @@
                end-evaluate
            end-perform.
        finaliza.
-           close file1.
+           call 'finaliza-clientes-service'.
            stop run.
 
       *> -----------------------------------
@@ -141,7 +130,7 @@
                perform mostra-erro
                go inclui-loop
            end-if
-           call 'salva-cliente' using file1-rec, ws-msgerro.
+           call 'salva-cliente' using file1-rec, ws-msgerro, app-stat.
            if ws-msgerro not equal to spaces
                perform mostra-erro
            end-if.
@@ -157,7 +146,7 @@
            move spaces to file1-rec.
            display ss-tela-registro.
            perform le-cliente thru le-cliente-fim.
-           if fs-cancela
+           if app-cancela
                go consulta-fim
            end-if
            if fs-ok
@@ -177,7 +166,7 @@
            move spaces to file1-rec.
            display ss-tela-registro.
            perform le-cliente thru le-cliente-fim.
-           if fs-cancela
+           if app-cancela
                go to altera-fim
            end-if
            if fs-ok
@@ -188,14 +177,11 @@
            else
                go altera-loop
             end-if
-            rewrite file1-rec
-                invalid key
-                    move "erro ao gravar" to ws-msgerro
-                    perform mostra-erro
-                not invalid key
-                    continue
-            end-rewrite.
-            go altera-loop.
+           call 'altera-cliente' using file1-rec, ws-msgerro, app-stat.
+           if ws-msgerro not equal to spaces
+               perform mostra-erro
+           end-if.
+           go altera-loop.
        altera-fim.
 
       *> -----------------------------------
@@ -206,7 +192,7 @@
            move spaces to file1-rec.
            display ss-tela-registro.
            perform le-cliente thru le-cliente-fim.
-           if fs-cancela
+           if app-cancela
                go exclui-fim
            end-if
            if not fs-ok
@@ -219,37 +205,27 @@
            if not e-sim
                go exclui-fim
            end-if
-           delete file1
-               invalid key
-                   move "erro ao excluir" to ws-msgerro
-                   perform mostra-erro
-           end-delete.
+           call 'deleta-cliente' using file1-rec, ws-msgerro, app-stat.
+           if ws-msgerro not equal to spaces
+               perform mostra-erro
+           end-if.
        exclui-fim.
 
       *> -----------------------------------
       *> le cliente e mostra mensagem se chave não existe
        le-cliente.
            accept ss-chave.
+           move cob-crt-status to ws-msgerro.
+           perform mostra-erro.
            if not cob-crt-status = cob-scr-esc
-               read file1
-                   invalid key
-                       move "cliente não encontrado" to ws-msgerro
-                       perform mostra-erro
-               end-read
+               call 'busca-cliente' using file1-rec, ws-msgerro, app-stat
+              if ws-msgerro not equal to spaces
+                  perform mostra-erro
+              end-if
            else
-               move 99 to fs-stat
+               move 99 to app-stat
            end-if.
        le-cliente-fim.
-
-      *> -----------------------------------
-      *> abre arquivos para entrada e saída
-       abrir-arquivos.
-           open i-o file1
-           if fs-nao-existe then
-               open output file1
-               close file1
-               open i-o file1
-           end-if.
 
       *> -----------------------------------
       *> mostra mensagem, espera enter, atualiza barra status
