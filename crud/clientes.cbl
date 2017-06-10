@@ -1,258 +1,259 @@
-          >>SOURCE format FREE
-       IDENTIFICATION DIVISION.
-       PROGRAM-ID. CLIENTES.
+          >>source format free
+       identification division.
+       program-id. clientes.
+       environment division.
 
-       ENVIRONMENT DIVISION.
-       INPUT-OUTPUT SECTION.
-       FILE-CONTROL.
-           SELECT FILE1 ASSIGN TO DISK
-               ORGANIZATION IS INDEXED
-               ACCESS MODE IS RANDOM
-               FILE STATUS IS FS-STAT
-               RECORD KEY IS FS-KEY.
+       configuration section.
 
-       DATA DIVISION.
-       FILE SECTION.
-       FD FILE1 VALUE OF FILE-ID IS "clientes.dat".
-       01 FILE1-REC.
-           05 FS-KEY.
-               10 FS-FONE PIC 9(09) BLANK WHEN ZEROS.
-           05 FS-NOME     PIC X(40).
-           05 FS-ENDERECO PIC X(40).
-           05 FILLER      PIC X(20).
+       input-output section.
+       file-control.
+           select file1 assign to disk
+               organization is indexed
+               access mode is random
+               file status is fs-stat
+               record key is fs-key.
 
-       WORKING-STORAGE SECTION.
+       data division.
+       file section.
+       fd file1 value of file-id is "clientes.dat".
+       01 file1-rec.
+           05 fs-key.
+               10 fs-fone pic 9(09) blank when zeros.
+           05 fs-nome     pic x(40).
+           05 fs-endereco pic x(40).
+           05 filler      pic x(20).
 
-       01 WS-MODULO.
-           05 FILLER PIC X(11) VALUE "CLIENTES -".
-           05 WS-OP PIC X(20) VALUE SPACES.
+       working-storage section.
 
-       77 WS-OPCAO PIC X.
-           88 E-INCLUIR   VALUE IS "1".
-           88 E-CONSULTAR VALUE IS "2".
-           88 E-ALTERAR   VALUE IS "3".
-           88 E-EXCLUIR   VALUE IS "4".
-           88 E-ENCERRAR  VALUE IS "X" "x".
-       77 FS-STAT PIC 9(02).
-           88 FS-OK         VALUE ZEROS.
-           88 FS-CANCELA    VALUE 99.
-           88 FS-NAO-EXISTE VALUE 35.
-       77 WS-ERRO PIC X.
-           88 E-SIM VALUES ARE "S" "s".
+       01 ws-modulo.
+           05 filler pic x(11) value "clientes -".
+           05 ws-op pic x(20) value spaces.
 
-       77 WS-NUML PIC 999.
-       77 WS-NUMC PIC 999.
-       77 COR-FUNDO PIC 9 VALUE 1.
-       77 COR-FRENTE PIC 9 VALUE 6.
+       77 ws-opcao pic x.
+           88 e-incluir   value is "1".
+           88 e-consultar value is "2".
+           88 e-alterar   value is "3".
+           88 e-excluir   value is "4".
+           88 e-encerrar  value is "x" "x".
+       77 fs-stat pic 9(02).
+           88 fs-ok         value zeros.
+           88 fs-cancela    value 99.
+           88 fs-nao-existe value 35.
+       77 ws-erro pic x.
+           88 e-sim values are "s" "s".
 
-       77 WS-STATUS PIC X(30).
-       77 WS-MSGERRO PIC X(80).
+       77 ws-numl pic 999.
+       77 ws-numc pic 999.
+       77 cor-fundo pic 9 value 1.
+       77 cor-frente pic 9 value 6.
 
-       COPY screenio.
+       77 ws-status pic x(30).
+       77 ws-msgerro pic x(80).
 
-       SCREEN SECTION.
-       01 SS-CLS.
-           05 SS-FILLER.
-               10 BLANK SCREEN.
-               10 LINE 01 COLUMN 01 ERASE EOL
-                  BACKGROUND-COLOR COR-FUNDO.
-               10 LINE WS-NUML COLUMN 01 ERASE EOL
-                  BACKGROUND-COLOR COR-FUNDO.
-           05 SS-CABECALHO.
-               10 LINE 01 COLUMN 02 PIC X(31) FROM WS-MODULO
-                  HIGHLIGHT FOREGROUND-COLOR COR-FRENTE
-                  BACKGROUND-COLOR COR-FUNDO.
-           05 SS-STATUS.
-               10 LINE WS-NUML COLUMN 2 ERASE EOL PIC X(30)
-                  FROM WS-STATUS HIGHLIGHT
-                  FOREGROUND-COLOR COR-FRENTE
-                  BACKGROUND-COLOR COR-FUNDO.
+       copy screenio.
 
-       01 SS-MENU FOREGROUND-COLOR 6.
-           05 LINE 07 COLUMN 15 VALUE "1 - INCLUIR".
-           05 LINE 08 COLUMN 15 VALUE "2 - CONSULTAR".
-           05 LINE 09 COLUMN 15 VALUE "3 - ALTERAR".
-           05 LINE 10 COLUMN 15 VALUE "4 - EXCLUIR".
-           05 LINE 11 COLUMN 15 VALUE "X - ENCERRAR".
-           05 LINE 13 COLUMN 15 VALUE "OPÇÃO: ".
-           05 LINE 13 COL PLUS 1 USING WS-OPCAO AUTO.
+       screen section.
+       01 ss-cls.
+           05 ss-filler.
+               10 blank screen.
+               10 line 01 column 01 erase eol
+                  background-color cor-fundo.
+               10 line ws-numl column 01 erase eol
+                  background-color cor-fundo.
+           05 ss-cabecalho.
+               10 line 01 column 02 pic x(31) from ws-modulo
+                  highlight foreground-color cor-frente
+                  background-color cor-fundo.
+           05 ss-status.
+               10 line ws-numl column 2 erase eol pic x(30)
+                  from ws-status highlight
+                  foreground-color cor-frente
+                  background-color cor-fundo.
 
-       01 SS-TELA-REGISTRO.
-           05 SS-CHAVE FOREGROUND-COLOR 2.
-               10 LINE 10 COLUMN 10 VALUE "TELEFONE:".
-               10 COLUMN PLUS 2 PIC 9(09) USING FS-FONE
-                  BLANK WHEN ZEROS.
-           05 SS-DADOS.
-               10 LINE 11 COLUMN 10 VALUE "    NOME:".
-               10 COLUMN PLUS 2 PIC X(40) USING FS-NOME.
-               10 LINE 12 COLUMN 10 VALUE "ENDEREÇO:".
-               10 COLUMN PLUS 2 PIC X(40) USING FS-ENDERECO.
+       01 ss-menu foreground-color 6.
+           05 line 07 column 15 value "1 - incluir".
+           05 line 08 column 15 value "2 - consultar".
+           05 line 09 column 15 value "3 - alterar".
+           05 line 10 column 15 value "4 - excluir".
+           05 line 11 column 15 value "x - encerrar".
+           05 line 13 column 15 value "opção: ".
+           05 line 13 col plus 1 using ws-opcao auto.
 
-       01 SS-ERRO.
-           05 FILLER FOREGROUND-COLOR 4 BACKGROUND-COLOR 1 HIGHLIGHT.
-               10 LINE WS-NUML COLUMN 2 PIC X(80) FROM WS-MSGERRO BELL.
-               10 COLUMN PLUS 2 TO WS-ERRO.
+       01 ss-tela-registro.
+           05 ss-chave foreground-color 2.
+               10 line 10 column 10 value "telefone:".
+               10 column plus 2 pic 9(09) using fs-fone
+                  blank when zeros.
+           05 ss-dados.
+               10 line 11 column 10 value "    nome:".
+               10 column plus 2 pic x(40) using fs-nome.
+               10 line 12 column 10 value "endereço:".
+               10 column plus 2 pic x(40) using fs-endereco.
 
-       PROCEDURE DIVISION.
-       INICIO.
-           SET ENVIRONMENT 'COB_SCREEN_EXCEPTIONS' TO 'Y'.
-           SET ENVIRONMENT 'COB_SCREEN_ESC' TO 'Y'.
-           SET ENVIRONMENT 'ESCDELAY' TO '25'.
-           ACCEPT WS-NUML FROM LINES
-           ACCEPT WS-NUMC FROM COLUMNS
-           PERFORM ABRIR-ARQUIVOS
-           PERFORM UNTIL E-ENCERRAR
-               MOVE "MENU" TO WS-OP
-               MOVE "ESCOLHA A OPÇÃO" TO WS-STATUS
-               MOVE SPACES TO WS-OPCAO
-               DISPLAY SS-CLS
-               ACCEPT SS-MENU
-               EVALUATE TRUE
-                   WHEN E-INCLUIR
-                       PERFORM INCLUI THRU INCLUI-FIM
-                   WHEN E-CONSULTAR
-                       PERFORM CONSULTA THRU CONSULTA-FIM
-                   WHEN E-ALTERAR
-                       PERFORM ALTERA THRU ALTERA-FIM
-                   WHEN E-EXCLUIR
-                       PERFORM EXCLUI THRU EXCLUI-FIM
-               END-EVALUATE
-           END-PERFORM.
-       FINALIZA.
-           CLOSE FILE1.
-           STOP RUN.
+       01 ss-erro.
+           05 filler foreground-color 4 background-color 1 highlight.
+               10 line ws-numl column 2 pic x(80) from ws-msgerro bell.
+               10 column plus 2 to ws-erro.
 
-      *> -----------------------------------
-       INCLUI.
-           MOVE "INCLUSÃO" TO WS-OP.
-           MOVE "ESC PARA ENCERRAR" TO WS-STATUS.
-           DISPLAY SS-CLS.
-           MOVE SPACES TO FILE1-REC.
-       INCLUI-LOOP.
-           ACCEPT SS-TELA-REGISTRO.
-           IF COB-CRT-STATUS = COB-SCR-ESC
-               GO INCLUI-FIM
-           END-IF
-           IF FS-NOME EQUAL SPACES OR FS-ENDERECO EQUAL SPACES
-               MOVE "FAVOR INFORMAR NOME E ENDEREÇO" TO WS-MSGERRO
-               PERFORM MOSTRA-ERRO
-               GO INCLUI-LOOP
-           END-IF
-           WRITE FILE1-REC
-           INVALID KEY
-               MOVE "CLIENTE JÁ EXISTE" TO WS-MSGERRO
-               PERFORM MOSTRA-ERRO
-               MOVE ZEROS TO FS-KEY
-           END-WRITE.
-           GO INCLUI.
-       INCLUI-FIM.
+       procedure division.
+       inicio.
+           set environment 'cob_screen_exceptions' to 'y'.
+           set environment 'cob_screen_esc' to 'y'.
+           set environment 'escdelay' to '25'.
+           accept ws-numl from lines
+           accept ws-numc from columns
+           perform abrir-arquivos
+           call 'start-files'.
+           perform until e-encerrar
+               move "menu" to ws-op
+               move "escolha a opção" to ws-status
+               move spaces to ws-opcao
+               display ss-cls
+               accept ss-menu
+               evaluate true
+                   when e-incluir
+                       perform inclui thru inclui-fim
+                   when e-consultar
+                       perform consulta thru consulta-fim
+                   when e-alterar
+                       perform altera thru altera-fim
+                   when e-excluir
+                       perform exclui thru exclui-fim
+               end-evaluate
+           end-perform.
+       finaliza.
+           close file1.
+           stop run.
 
       *> -----------------------------------
-       CONSULTA.
-           MOVE "CONSULTA" TO WS-OP.
-           MOVE "ESC PARA ENCERRAR" TO WS-STATUS.
-           DISPLAY SS-CLS.
-       CONSULTA-LOOP.
-           MOVE SPACES TO FILE1-REC.
-           DISPLAY SS-TELA-REGISTRO.
-           PERFORM LE-CLIENTE THRU LE-CLIENTE-FIM.
-           IF FS-CANCELA
-               GO CONSULTA-FIM
-           END-IF
-           IF FS-OK
-               DISPLAY SS-DADOS
-               MOVE "PRESSIONE ENTER" TO WS-MSGERRO
-               PERFORM MOSTRA-ERRO
-           END-IF.
-           GO CONSULTA-LOOP.
-       CONSULTA-FIM.
+       inclui.
+           move "inclusão" to ws-op.
+           move "esc para encerrar" to ws-status.
+           display ss-cls.
+           move spaces to file1-rec.
+       inclui-loop.
+           accept ss-tela-registro.
+           if cob-crt-status = cob-scr-esc
+               go inclui-fim
+           end-if
+           if fs-nome equal spaces or fs-endereco equal spaces
+               move "favor informar nome e endereço" to ws-msgerro
+               perform mostra-erro
+               go inclui-loop
+           end-if
+           call 'salva-cliente' using file1-rec, ws-msgerro.
+           if ws-msgerro not equal to spaces
+               perform mostra-erro
+           end-if.
+           go inclui.
+       inclui-fim.
 
       *> -----------------------------------
-       ALTERA.
-           MOVE "ALTERAÇÃO" TO WS-OP.
-           MOVE "ESC PARA ENCERRAR" TO WS-STATUS.
-           DISPLAY SS-CLS.
-       ALTERA-LOOP.
-           MOVE SPACES TO FILE1-REC.
-           DISPLAY SS-TELA-REGISTRO.
-           PERFORM LE-CLIENTE THRU LE-CLIENTE-FIM.
-           IF FS-CANCELA
-               GO TO ALTERA-FIM
-           END-IF
-           IF FS-OK
-               ACCEPT SS-DADOS
-               IF COB-CRT-STATUS = COB-SCR-ESC
-                   GO ALTERA-LOOP
-               END-IF
-           ELSE
-               GO ALTERA-LOOP
-            END-IF
-            REWRITE FILE1-REC
-                INVALID KEY
-                    MOVE "ERRO AO GRAVAR" TO WS-MSGERRO
-                    PERFORM MOSTRA-ERRO
-                NOT INVALID KEY
-                    CONTINUE
-            END-REWRITE.
-            GO ALTERA-LOOP.
-       ALTERA-FIM.
+       consulta.
+           move "consulta" to ws-op.
+           move "esc para encerrar" to ws-status.
+           display ss-cls.
+       consulta-loop.
+           move spaces to file1-rec.
+           display ss-tela-registro.
+           perform le-cliente thru le-cliente-fim.
+           if fs-cancela
+               go consulta-fim
+           end-if
+           if fs-ok
+               display ss-dados
+               move "pressione enter" to ws-msgerro
+               perform mostra-erro
+           end-if.
+           go consulta-loop.
+       consulta-fim.
 
       *> -----------------------------------
-       EXCLUI.
-           MOVE "EXCLUSÃO" TO WS-OP.
-           MOVE "ESC PARA ENCERRAR" TO WS-STATUS.
-           DISPLAY SS-CLS.
-           MOVE SPACES TO FILE1-REC.
-           DISPLAY SS-TELA-REGISTRO.
-           PERFORM LE-CLIENTE THRU LE-CLIENTE-FIM.
-           IF FS-CANCELA
-               GO EXCLUI-FIM
-           END-IF
-           IF NOT FS-OK
-               GO EXCLUI
-           END-IF
-           DISPLAY SS-DADOS.
-           MOVE "N" TO WS-ERRO.
-           MOVE "CONFIRMA A EXCLUSÃO DO CLIENTE (S/N)?" TO WS-MSGERRO.
-           ACCEPT SS-ERRO.
-           IF NOT E-SIM
-               GO EXCLUI-FIM
-           END-IF
-           DELETE FILE1
-               INVALID KEY
-                   MOVE "ERRO AO EXCLUIR" TO WS-MSGERRO
-                   PERFORM MOSTRA-ERRO
-           END-DELETE.
-       EXCLUI-FIM.
+       altera.
+           move "alteração" to ws-op.
+           move "esc para encerrar" to ws-status.
+           display ss-cls.
+       altera-loop.
+           move spaces to file1-rec.
+           display ss-tela-registro.
+           perform le-cliente thru le-cliente-fim.
+           if fs-cancela
+               go to altera-fim
+           end-if
+           if fs-ok
+               accept ss-dados
+               if cob-crt-status = cob-scr-esc
+                   go altera-loop
+               end-if
+           else
+               go altera-loop
+            end-if
+            rewrite file1-rec
+                invalid key
+                    move "erro ao gravar" to ws-msgerro
+                    perform mostra-erro
+                not invalid key
+                    continue
+            end-rewrite.
+            go altera-loop.
+       altera-fim.
 
       *> -----------------------------------
-      *> LE CLIENTE E MOSTRA MENSAGEM SE CHAVE NÃO EXISTE
-       LE-CLIENTE.
-           ACCEPT SS-CHAVE.
-           IF NOT COB-CRT-STATUS = COB-SCR-ESC
-               READ FILE1
-                   INVALID KEY
-                       MOVE "CLIENTE NÃO ENCONTRADO" TO WS-MSGERRO
-                       PERFORM MOSTRA-ERRO
-               END-READ
-           ELSE
-               MOVE 99 to FS-STAT
-           END-IF.
-       LE-CLIENTE-FIM.
+       exclui.
+           move "exclusão" to ws-op.
+           move "esc para encerrar" to ws-status.
+           display ss-cls.
+           move spaces to file1-rec.
+           display ss-tela-registro.
+           perform le-cliente thru le-cliente-fim.
+           if fs-cancela
+               go exclui-fim
+           end-if
+           if not fs-ok
+               go exclui
+           end-if
+           display ss-dados.
+           move "n" to ws-erro.
+           move "confirma a exclusão do cliente (s/n)?" to ws-msgerro.
+           accept ss-erro.
+           if not e-sim
+               go exclui-fim
+           end-if
+           delete file1
+               invalid key
+                   move "erro ao excluir" to ws-msgerro
+                   perform mostra-erro
+           end-delete.
+       exclui-fim.
 
       *> -----------------------------------
-      *> ABRE ARQUIVOS PARA ENTRADA E SAÍDA
-       ABRIR-ARQUIVOS.
-           OPEN I-O FILE1
-           IF FS-NAO-EXISTE THEN
-               OPEN OUTPUT FILE1
-               CLOSE FILE1
-               OPEN I-O FILE1
-           END-IF.
+      *> le cliente e mostra mensagem se chave não existe
+       le-cliente.
+           accept ss-chave.
+           if not cob-crt-status = cob-scr-esc
+               read file1
+                   invalid key
+                       move "cliente não encontrado" to ws-msgerro
+                       perform mostra-erro
+               end-read
+           else
+               move 99 to fs-stat
+           end-if.
+       le-cliente-fim.
 
       *> -----------------------------------
-      *> MOSTRA MENSAGEM, ESPERA ENTER, ATUALIZA BARRA STATUS
-       MOSTRA-ERRO.
-           DISPLAY SS-ERRO
-           ACCEPT SS-ERRO
-           DISPLAY SS-STATUS.
+      *> abre arquivos para entrada e saída
+       abrir-arquivos.
+           open i-o file1
+           if fs-nao-existe then
+               open output file1
+               close file1
+               open i-o file1
+           end-if.
+
+      *> -----------------------------------
+      *> mostra mensagem, espera enter, atualiza barra status
+       mostra-erro.
+           display ss-erro
+           accept ss-erro
+           display ss-status.
